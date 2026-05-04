@@ -368,6 +368,12 @@ class TierValidation(models.AbstractModel):
             else:
                 allowed_field_names.append(fld_data["string"])
         return allowed_field_names, not_allowed_field_names
+    
+    def _error_validated_message(self):
+        return _(
+            "This action needs to be validated for at least "
+            "one record. \nPlease request a validation."
+        )
 
     def write(self, vals):
         for rec in self:
@@ -378,10 +384,7 @@ class TierValidation(models.AbstractModel):
                     rec._validate_tier(reviews)
                     if rec.validation_status != "validated":
                         raise ValidationError(
-                            _(
-                                "This action needs to be validated for at least "
-                                "one record. \nPlease request a validation."
-                            )
+                            self._error_validated_message()
                         )
                 if rec.review_ids and rec.validation_status != "validated":
                     raise ValidationError(
